@@ -15,7 +15,7 @@
 	}
 
 	myConnector.getSchema = function (schemaCallback) {
-		var connectionData = JSON.parse(tableau.connectionData);
+		var connectionData = JSON.parse(tableau.user);
 		$.ajax({ 
 			url: connectionData.endpoint + 
 				'?path=' + connectionData.reportPath,
@@ -64,7 +64,7 @@
 				reportName: decodeURIComponent(reportPath).substring(decodeURIComponent(reportPath).lastIndexOf('/')+1),
 				maxRows: $('#selectMaxRows').val()
 			};
-			tableau.connectionData = JSON.stringify(connectionData);
+			tableau.user = JSON.stringify(connectionData);
 			tableau.password = $('#txtApiKey').val();
 			if ($('#chkRemember').prop('checked') ) {
 				prefs.key = $('#txtApiKey').val();
@@ -96,7 +96,7 @@ function mapDt(val) {
 var tableData;
 
 function getData(resumptionToken, callback) {
-	var connectionData = JSON.parse(tableau.connectionData);
+	var connectionData = JSON.parse(tableau.user);
 	var url = connectionData.endpoint;
 	if (resumptionToken) {
 		url = url + '?token=' + resumptionToken;
@@ -123,6 +123,7 @@ function getData(resumptionToken, callback) {
 				tableData.push(obj);
 			});	
 			console.log('Added rows to data table. Total', tableData.length);
+			tableau.reportProgress("Getting row: " + tableData.length);
 			if ($('IsFinished', $xml).text() == 'false' && tableData.length < connectionData.maxRows) {
 				getData(token, callback);
 			} else {
