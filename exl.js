@@ -15,7 +15,7 @@
 	}
 
 	myConnector.getSchema = function (schemaCallback) {
-		var connectionData = JSON.parse(tableau.user);
+		var connectionData = JSON.parse(tableau.username);
 		$.ajax({ 
 			url: connectionData.endpoint + 
 				'?path=' + connectionData.reportPath,
@@ -27,7 +27,11 @@
 				var cols = [];
 				elements.each(function(){
 					var $entry = $(this);
-					cols.push( { id: $entry.attr('name'), alias: $entry.attr('name'), dataType: mapDt($entry.attr('type'))});
+					cols.push( { 
+						id: $entry.attr('name'), 
+						alias: $entry.attr('saw-sql:columnHeading') || $entry.attr('name'), 
+						dataType: mapDt($entry.attr('type'))
+					});
 					// TODO: fact vs dimension?
 				})
 
@@ -64,7 +68,7 @@
 				reportName: decodeURIComponent(reportPath).substring(decodeURIComponent(reportPath).lastIndexOf('/')+1),
 				maxRows: $('#selectMaxRows').val()
 			};
-			tableau.user = JSON.stringify(connectionData);
+			tableau.username = JSON.stringify(connectionData);
 			tableau.password = $('#txtApiKey').val();
 			if ($('#chkRemember').prop('checked') ) {
 				prefs.key = $('#txtApiKey').val();
@@ -96,7 +100,7 @@ function mapDt(val) {
 var tableData;
 
 function getData(resumptionToken, callback) {
-	var connectionData = JSON.parse(tableau.user);
+	var connectionData = JSON.parse(tableau.username);
 	var url = connectionData.endpoint;
 	if (resumptionToken) {
 		url = url + '?token=' + resumptionToken;
