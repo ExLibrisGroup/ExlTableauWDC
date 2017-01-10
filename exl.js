@@ -4,6 +4,12 @@
 		initCallback();
 		tableau.authType = tableau.authTypeEnum.custom;
 		var prefs = getPreferences();
+		if (tableau.username) {
+			var connectionData = JSON.parse(tableau.username);
+			$('#txtReportPath').val(connectionData.reportPath);
+			$('#selectEndpoint').val(connectionData.endpoint);			
+			$('#selectMaxRows').val(connectionData.maxRows);
+		}
 		if (tableau.phase == tableau.phaseEnum.authPhase) {
 			$("#reportUrl").css('display', 'none');
 			$('#txtApiKey').val(prefs.key);
