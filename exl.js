@@ -3,20 +3,20 @@
 	myConnector.init = function (initCallback) {
 		initCallback();
 		tableau.authType = tableau.authTypeEnum.custom;
-		var prefs = getPreferences();
 		if (tableau.username) {
 			var connectionData = JSON.parse(tableau.username);
 			$('#txtReportPath').val(connectionData.reportPath);
 			$('#selectEndpoint').val(connectionData.endpoint);			
 			$('#selectMaxRows').val(connectionData.maxRows);
+			if (connectionData.apikey) {
+				$('#txtApiKey').val(connectionData.apikey);
+			} else {
+				$('#chkRemember').prop('checked',false);
+			}
 		}
 		if (tableau.phase == tableau.phaseEnum.authPhase) {
-			$("#reportUrl").css('display', 'none');
-			$('#txtApiKey').val(prefs.key);
-			if (prefs.key) {
-				tableau.password = prefs.key;
+			if (tableau.username && tableau.password)
 				tableau.submit();
-			}
 		}
 	}
 
@@ -42,7 +42,7 @@
 				})
 
 				var tableInfo = {
-					id: "exl_" + connectionData.reportName.toLowerCase().split(' ').join('_'),
+					id: "exl_" + connectionData.reportName.toLowerCase().replace(/\W+/g, "_"),
 					alias: connectionData.reportName,
 					columns: cols
 				};
@@ -63,8 +63,6 @@
 	tableau.registerConnector(myConnector);
 
 	$(document).ready(function () {
-		var prefs = getPreferences();
-		$('#txtApiKey').val(prefs.key);
 		$("#submitButton").click(function () {
 			var reportPath = $('#txtReportPath').val();
 			if (reportPath.indexOf('/') >= 0) reportPath = encodeURIComponent(reportPath);
@@ -74,14 +72,11 @@
 				reportName: decodeURIComponent(reportPath).substring(decodeURIComponent(reportPath).lastIndexOf('/')+1),
 				maxRows: $('#selectMaxRows').val()
 			};
+			if ($('#chkRemember').prop('checked') ) {
+				connectionData.apikey = $('#txtApiKey').val();
+			}
 			tableau.username = JSON.stringify(connectionData);
 			tableau.password = $('#txtApiKey').val();
-			if ($('#chkRemember').prop('checked') ) {
-				prefs.key = $('#txtApiKey').val();
-			} else {
-				prefs.key = '';
-			}
-			setPreferences(prefs);
 			tableau.connectionName = "ExLibris";
 			tableau.submit();
 		});
@@ -141,18 +136,4 @@ function getData(resumptionToken, callback) {
 			}		
 		}
 	});
-}
-
-function getPreferences () {
-	var prefs;
-	try {
-		prefs = JSON.parse(atob(Cookies.get('prefs')))
-	} catch (e) {
-		prefs = { key: '' };
-	}
-	return prefs;
-}
-
-function setPreferences(prefs) {
-	Cookies.set('prefs', btoa(JSON.stringify(prefs)), { expires: 14 });
 }
