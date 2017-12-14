@@ -24,9 +24,9 @@
 		var connectionData = JSON.parse(tableau.username);
 		$.ajax({ 
 			url: connectionData.endpoint + 
-				'?path=' + connectionData.reportPath,
+				'/almaws/v1/analytics/reports?path=' + connectionData.reportPath,
 			type: "GET",
-			beforeSend: function(xhr) { xhr.setRequestHeader('Authorization', 'apikey ' + tableau.password) }, 
+			beforeSend: setAuthHeader, 
 			success: function(data) {
 				var $xml = $( data );
 				var elements = $('xsd\\:element, element', $xml);
@@ -63,6 +63,41 @@
 	tableau.registerConnector(myConnector);
 
 	$(document).ready(function () {
+		$('#tree').on('show.bs.collapse', function (e) {
+			if (!$.jstree.reference('#tree')) {
+				if(!$('#txtApiKey').val()) {
+					$('#tree').html('<div class="alert alert-warning" role="alert">Please enter your API key.</div>');
+					return;
+				}
+				console.log('loading jtree');
+		    $('#tree').jstree({
+        	'core' : {
+            'data' : function(node, callback) {
+                var url = (node.id == "#" ? $('#selectEndpoint').val() + '/almaws/v1/analytics/paths' : '');
+    			$.ajax({
+    				url: url + node.id, 
+    				type: "GET",
+    				dataType: "json",
+    				cache: false,
+    				beforeSend: setAuthHeader,
+    				success: function(data) { callback(data.path.map(mapNode)); }
+    			}); 
+            },
+	        	'themes': {
+	            'name': 'proton',
+	            'responsive': true
+	          }
+        	}
+    		});
+			}
+		});
+
+    $('#tree').on("changed.jstree", function (e, data) {
+        var node = data.selected[0];
+        $('#txtReportPath').val(node.substring(node.indexOf('path=')+5));
+        $('button[href="#tree"]').click();
+    });  
+
 		$("#submitButton").click(function () {
 			var reportPath = $('#txtReportPath').val();
 			if (reportPath.indexOf('/') >= 0) reportPath = encodeURIComponent(reportPath);
@@ -104,9 +139,9 @@ function getData(resumptionToken, callback) {
 	var connectionData = JSON.parse(tableau.username);
 	var url = connectionData.endpoint;
 	if (resumptionToken) {
-		url = url + '?token=' + resumptionToken;
+		url = url + '/almaws/v1/analytics/reports?token=' + resumptionToken;
 	} else {
-		url = url + '?path=' + connectionData.reportPath;
+		url = url + '/almaws/v1/analytics/reports?path=' + connectionData.reportPath;
 		tableData = [];
 	}
 	console.log('Calling url', url);
@@ -114,7 +149,7 @@ function getData(resumptionToken, callback) {
 		url: url, 
 		type: "GET",
 		cache: false,
-		beforeSend: function(xhr) { xhr.setRequestHeader('Authorization', 'apikey ' + tableau.password) },
+		beforeSend: setAuthHeader,
 		success: function(data) {
 			var $xml = $( data );
 			var token = resumptionToken || $('ResumptionToken', $xml).text();
@@ -136,4 +171,16 @@ function getData(resumptionToken, callback) {
 			}		
 		}
 	});
+}
+
+function mapNode(node) {
+    var report = node.type=="report";
+    return {"text": node.value, "id": node.link, "children": (!report), 
+        "icon": report ? "glyphicon glyphicon-file" : "",
+        "state" : { "disabled" : !report }};
+}
+
+function setAuthHeader(xhr) {
+    var key = tableau.password || $('#txtApiKey').val();
+    xhr.setRequestHeader('Authorization', 'apikey ' + key)
 }
