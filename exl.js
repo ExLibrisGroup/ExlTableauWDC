@@ -5,6 +5,7 @@
 		tableau.authType = tableau.authTypeEnum.custom;
 		if (tableau.username) {
 			var connectionData = JSON.parse(tableau.username);
+			$('input').val([connectionData.application || 'almaws']);
 			$('#txtReportPath').val(connectionData.reportPath);
 			$('#selectEndpoint').val(connectionData.endpoint);			
 			$('#selectMaxRows').val(connectionData.maxRows);
@@ -23,8 +24,8 @@
 	myConnector.getSchema = function (schemaCallback) {
 		var connectionData = JSON.parse(tableau.username);
 		$.ajax({ 
-			url: connectionData.endpoint + 
-				'/almaws/v1/analytics/reports?path=' + connectionData.reportPath,
+			url: connectionData.endpoint + '/' + connectionData.application +
+				'/v1/analytics/reports?path=' + connectionData.reportPath,
 			type: "GET",
 			beforeSend: setAuthHeader, 
 			success: function(data) {
@@ -103,6 +104,7 @@
 			if (reportPath.indexOf('/') >= 0) reportPath = encodeURIComponent(reportPath);
 			var connectionData = { 
 				endpoint: $('#selectEndpoint').val(),
+				application: $('input[name=radioApplication]:checked').val(),
 				reportPath: reportPath,
 				reportName: decodeURIComponent(reportPath).substring(decodeURIComponent(reportPath).lastIndexOf('/')+1),
 				maxRows: $('#selectMaxRows').val()
@@ -137,11 +139,11 @@ var tableData;
 
 function getData(resumptionToken, callback) {
 	var connectionData = JSON.parse(tableau.username);
-	var url = connectionData.endpoint;
+	var url = connectionData.endpoint + '/' + connectionData.application;
 	if (resumptionToken) {
-		url = url + '/almaws/v1/analytics/reports?token=' + resumptionToken;
+		url = url + '/v1/analytics/reports?token=' + resumptionToken;
 	} else {
-		url = url + '/almaws/v1/analytics/reports?path=' + connectionData.reportPath;
+		url = url + '/v1/analytics/reports?path=' + connectionData.reportPath;
 		tableData = [];
 	}
 	console.log('Calling url', url);
