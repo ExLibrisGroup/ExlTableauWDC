@@ -9,6 +9,7 @@
 			$('#txtReportPath').val(connectionData.reportPath);
 			$('#selectEndpoint').val(connectionData.endpoint);			
 			$('#selectMaxRows').val(connectionData.maxRows);
+			$('#selectPageSize').val(connectionData.pageSize);
 			if (connectionData.apikey) {
 				$('#txtApiKey').val(connectionData.apikey);
 			} else {
@@ -107,7 +108,8 @@
 				application: $('input[name=radioApplication]:checked').val(),
 				reportPath: reportPath,
 				reportName: decodeURIComponent(reportPath).substring(decodeURIComponent(reportPath).lastIndexOf('/')+1),
-				maxRows: $('#selectMaxRows').val()
+				maxRows: $('#selectMaxRows').val(),
+				pageSize: $('#selectPageSize').val()
 			};
 			if ($('#chkRemember').prop('checked') ) {
 				connectionData.apikey = $('#txtApiKey').val();
@@ -145,6 +147,9 @@ function getData(resumptionToken, callback) {
 	} else {
 		url = url + '/v1/analytics/reports?path=' + connectionData.reportPath;
 		tableData = [];
+	}
+	if (connectionData.pageSize != 25) {
+		url = url + '&limit=' + connectionData.pageSize;
 	}
 	console.log('Calling url', url);
 	$.ajax({
