@@ -72,7 +72,7 @@
         </div>
         <div class="form-group">
             <label for="selectMaxRows" class="control-label col-xs-2">Max number of rows</label>
-            <div class="col-xs-10">
+            <div class="col-xs-4">
                 <select id="selectMaxRows" class="form-control">
                     <option value="25">25</option>
                     <option value="50">50</option>
@@ -86,11 +86,20 @@
                     <option value="25000">25000</option>
                     <option value="50000">50000</option>
                     <option value="100000">100000</option>
-                    <option value="500000">500000</option>
-                    <option value="-1">No Limit</option>
+                    <option value="250000">250000</option>
                 </select>
             </div>
-        </div>        
+            <label for="selectPageSize" class="control-label col-xs-2">Page size</label>
+            <div class="col-xs-4">
+                <select id="selectPageSize" class="form-control">
+                    <option value="25">25</option>
+                    <option value="100" selected>100</option>
+                    <option value="250">250</option>
+                    <option value="500">500</option>
+                    <option value="1000">1000</option>
+                </select>
+            </div>
+        </div>               
         </div>
         <div class="form-group">
             <div class="col-xs-offset-2 col-xs-10">
