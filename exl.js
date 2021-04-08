@@ -166,7 +166,7 @@ function getData(resumptionToken, callback) {
 			});	
 			console.log('Added rows to data table. Total', tableData.length);
 			tableau.reportProgress("Getting row: " + tableData.length);
-			if ($('IsFinished', $xml).text() == 'false' && tableData.length < connectionData.maxRows) {
+			if ($('IsFinished', $xml).text() == 'false' && (connectionData.maxRows == -1 || tableData.length < connectionData.maxRows)) {
 				getData(token, callback);
 			} else {
 				callback(tableData);
