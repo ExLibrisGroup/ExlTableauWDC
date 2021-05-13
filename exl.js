@@ -55,9 +55,8 @@
 	};
 
 	myConnector.getData = function(table, doneCallback) {
-		getData(null, function(data) {
-			console.log('Data retrieved. Total rows', data.length);
-			table.appendRows(data);
+		getData(table, null, function() {
+			console.log('Data fully retrieved.');
 			doneCallback();
 		});
 	};
@@ -137,16 +136,15 @@ function mapDt(val) {
 	return type;
 }
 
-var tableData;
+var tableDataLength = 0;
 
-function getData(resumptionToken, callback) {
+function getData(table, resumptionToken, callback) {
 	var connectionData = JSON.parse(tableau.username);
 	var url = connectionData.endpoint + '/' + connectionData.application;
 	if (resumptionToken) {
 		url = url + '/v1/analytics/reports?token=' + resumptionToken;
 	} else {
 		url = url + '/v1/analytics/reports?path=' + connectionData.reportPath;
-		tableData = [];
 	}
 	url = url + '&limit=' + connectionData.pageSize;
 	console.log('Calling url', url);
@@ -159,6 +157,7 @@ function getData(resumptionToken, callback) {
 			var $xml = $( data );
 			var token = resumptionToken || $('ResumptionToken', $xml).text();
 			var rows = $('Row', $xml);
+			var tableData = [];
 			rows.each(function(){
 				var $entry = $(this);
 				var obj = {};
@@ -167,12 +166,15 @@ function getData(resumptionToken, callback) {
 				});
 				tableData.push(obj);
 			});	
-			console.log('Added rows to data table. Total', tableData.length);
-			tableau.reportProgress("Getting row: " + tableData.length);
-			if ($('IsFinished', $xml).text() == 'false' && (connectionData.maxRows == -1 || tableData.length < connectionData.maxRows)) {
-				getData(token, callback);
+			tableDataLength += tableData.length;
+			table.appendRows(tableData);
+			console.log('Added rows to data table. Total', tableDataLength);
+			tableau.reportProgress("Getting row: " + tableDataLength);
+			if ($('IsFinished', $xml).text() == 'false' && (connectionData.maxRows == -1 || tableDataLength < connectionData.maxRows)) {
+				getData(table, token, callback);
 			} else {
-				callback(tableData);
+				tableDataLength = 0;
+				callback();
 			}		
 		}
 	});
