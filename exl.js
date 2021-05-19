@@ -57,7 +57,7 @@
 	myConnector.getData = function(table, doneCallback) {
 		getData(null, function(data) {
 			console.log('Data retrieved. Total rows', data.length);
-			table.appendRows(data);
+			chunkData(table, tableData);
 			doneCallback();
 		});
 	};
@@ -188,4 +188,15 @@ function mapNode(node) {
 function setAuthHeader(xhr) {
     var key = tableau.password || $('#txtApiKey').val();
     xhr.setRequestHeader('Authorization', 'apikey ' + key)
+}
+
+// add the data in manageable chunks
+function chunkData(table, tableData) {
+	var row_index = 0;
+	var size = 100;
+	while (row_index < tableData.length){
+		table.appendRows(tableData.slice(row_index, size + row_index));
+		row_index += size;
+		tableau.reportProgress("Adding row: " + row_index);
+	}
 }
