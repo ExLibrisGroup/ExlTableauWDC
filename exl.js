@@ -57,7 +57,7 @@
 	myConnector.getData = function(table, doneCallback) {
 		getData(null, function(data) {
 			console.log('Data retrieved. Total rows', data.length);
-			chunkData(table, tableData);
+			chunkData(table, data);
 			doneCallback();
 		});
 	};
