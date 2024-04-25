@@ -1,3 +1,6 @@
+Please note that Tableau web connector 2.0 is no longer supported by Tableau.
+For more information see the Tableau statement at Web Data Connectors Deprecated in 2023.1 Release.
+
 # Ex Libris Tableau Web Data Connector
 
 This project provides a way to access data from Ex Libris Analytics ([Alma](https://knowledge.exlibrisgroup.com/Alma/Product_Documentation/Alma_Online_Help_(English)/Analytics) or Primo) with [Tableau](http://www.tableau.com/) [Desktop](http://www.tableau.com/products/desktop). To access your Ex Libris data in Tableau, you define a report in Analytics with the desired data. Then add a data source of web data connector to your Tableau workbook for each analytics report you're interested in. Step by step instructions are available at this [blog post](https://developers.exlibrisgroup.com/blog/Tableau-Web-Data-Connector-for-Ex-Libris-Analytics).
